@@ -6,9 +6,7 @@ Handy when performing network investigations ;)
 # Installation
 
 ```bash
-$ git clone git@github.com:da-rod/rdns.git
-$ cd rdns
-$ go install
+$ go get github.com/da-rod/rdns
 ```
 
 # Usage
