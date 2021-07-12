@@ -1,8 +1,6 @@
 package main
 
-import (
-	"strings"
-)
+import "strings"
 
 func isValid(input string) (bool, string) {
 	switch {

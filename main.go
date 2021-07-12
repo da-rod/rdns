@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"flag"
 	"fmt"
 	"net"
 	"os"
@@ -16,18 +17,28 @@ type result struct {
 
 type results []result
 
-func main() {
-	// Check args
-	if len(os.Args) != 2 {
-		printHelp()
-		os.Exit(1)
+var zero *bool
+
+func init() {
+	flag.Usage = func() {
+		fmt.Fprint(flag.CommandLine.Output(), "Reverse DNS lookup tool.\n\n")
+		fmt.Fprint(flag.CommandLine.Output(), "Takes an IP address or CIDR as argument (or from stdin (one per line)).\n")
+		fmt.Fprint(flag.CommandLine.Output(), "(Also accepts \"truncated\" CIDRs x.y.z which are treated as x.y.z.0/24.)\n\n")
+		fmt.Fprintf(flag.CommandLine.Output(), "Usage: %s <IP or CIDR>\n", os.Args[0])
+		flag.PrintDefaults()
+		fmt.Fprintf(flag.CommandLine.Output(), "\nExamples:\n  - %s 140.82.112.32/29\n  - %s < ips.txt\n  - cat ips.txt | %s\n", os.Args[0], os.Args[0], os.Args[0])
 	}
+	zero = flag.Bool("z", false, "Filter out IP addresses without reverse DNS")
+}
+
+func main() {
+	flag.Parse()
 
 	// Parse input for lookup
 	var entries []string
-	input := os.Args[1]
+	input := flag.Arg(0)
 	switch input {
-	case "-":
+	case "":
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			in := scanner.Text()
@@ -49,18 +60,14 @@ func main() {
 	printResults(out)
 }
 
-func printHelp() {
-	p := os.Args[0]
-	fmt.Printf("Usage: %s <IP or CIDR>\n\n", p)
-	fmt.Printf("Also accepts IP(s)/CIDR(s) from STDIN using: %s -\n", p)
-	fmt.Printf("Example: cat ips.txt | %s -\n", p)
-}
-
 func printResults(results results) {
 	sort.Slice(results, func(i, j int) bool {
 		return bytes.Compare(results[i].Addr, results[j].Addr) < 0
 	})
 	for _, res := range results {
+		if *zero && len(res.Ptr) == 0 {
+			continue
+		}
 		fmt.Println(res.Addr, res.Ptr)
 	}
 }
