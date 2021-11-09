@@ -11,8 +11,8 @@ func lookup(input []string) results {
 		go func() {
 			rdns, _ := net.LookupAddr(ip)
 			ch <- result{
-				Addr: net.ParseIP(ip),
-				Ptr:  rdns,
+				addr: net.ParseIP(ip),
+				ptr:  rdns,
 			}
 		}()
 	}

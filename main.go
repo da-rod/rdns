@@ -11,8 +11,8 @@ import (
 )
 
 type result struct {
-	Addr net.IP
-	Ptr  []string
+	addr net.IP
+	ptr  []string
 }
 
 type results []result
@@ -62,12 +62,12 @@ func main() {
 
 func printResults(results results) {
 	sort.Slice(results, func(i, j int) bool {
-		return bytes.Compare(results[i].Addr, results[j].Addr) < 0
+		return bytes.Compare(results[i].addr, results[j].addr) < 0
 	})
 	for _, res := range results {
-		if *zero && len(res.Ptr) == 0 {
+		if *zero && len(res.ptr) == 0 {
 			continue
 		}
-		fmt.Println(res.Addr, res.Ptr)
+		fmt.Println(res.addr, res.ptr)
 	}
 }
