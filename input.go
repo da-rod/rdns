@@ -3,6 +3,8 @@ package main
 import "strings"
 
 func isValid(input string) (bool, string) {
+	// "Refang" defanged strings
+	input = strings.ReplaceAll(input, "[.]", ".")
 	switch {
 	// Check for empty lines and comments
 	case len(input) == 0, strings.HasPrefix(input, "#"):
