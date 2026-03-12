@@ -1,30 +1,30 @@
 package main
 
-import "net"
+import (
+	"net/netip"
+)
 
-func isIP(s string) bool {
-	return net.ParseIP(s) != nil
+func isIP(s string) (netip.Addr, bool) {
+	ip, err := netip.ParseAddr(s)
+	return ip, err == nil
 }
 
-func isCIDR(s string) bool {
-	_, _, err := net.ParseCIDR(s)
-	return err == nil
+func isCIDR(s string) (netip.Prefix, bool) {
+	cidr, err := netip.ParsePrefix(s)
+	return cidr.Masked(), err == nil
 }
 
-func getHosts(network string) []string {
-	var ips []string
-	ip, iprange, _ := net.ParseCIDR(network)
-	for ip := ip.Mask(iprange.Mask); iprange.Contains(ip); increment(ip) {
-		ips = append(ips, ip.String())
-	}
-	return ips
-}
-
-func increment(ip net.IP) {
-	for j := len(ip) - 1; j >= 0; j-- {
-		ip[j]++
-		if ip[j] > 0 {
-			break
+func getHosts(items []any) []netip.Addr {
+	var ips []netip.Addr
+	for _, item := range items {
+		switch input := item.(type) {
+		case netip.Addr:
+			ips = append(ips, input)
+		case netip.Prefix:
+			for ip := input.Addr(); input.Contains(ip); ip = ip.Next() {
+				ips = append(ips, ip)
+			}
 		}
 	}
+	return ips
 }
