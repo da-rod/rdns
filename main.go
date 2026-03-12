@@ -38,7 +38,7 @@ func main() {
 	var entries []string
 	input := flag.Arg(0)
 	switch input {
-	case "":
+	case "", "-":
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			in := scanner.Text()
